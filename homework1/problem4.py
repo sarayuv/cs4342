@@ -61,7 +61,7 @@ class Lasso_Regression(Linear_Regression):
     def compute_gradient(self, x, y):
         ##############################
         ## INSERT YOUR CODE HERE (20.0 points)
-        
+        dL_dw = - (y - np.dot(self.w, x)) * x + self.alpha * np.sign(self.w)
         ##############################
         return dL_dw
         
@@ -85,7 +85,7 @@ class Lasso_Regression(Linear_Regression):
     def update_w(self, dL_dw):
         ##############################
         ## INSERT YOUR CODE HERE (8.0 points)
-        pass 
+        self.w -= self.lr * dL_dw
         ##############################
         
         
@@ -115,7 +115,8 @@ class Lasso_Regression(Linear_Regression):
                 yi=y[i] # the label of the i-th random instance
                 ##############################
                 ## INSERT YOUR CODE HERE (12.0 points)
-                pass 
+                dL_dw = self.compute_gradient(xi, yi)
+                self.update_w(dL_dw)
                 ##############################
         
         
