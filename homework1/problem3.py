@@ -86,7 +86,7 @@ class Linear_Regression_SE(Linear_Regression):
     def train(self, X, y):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        pass 
+        self.w = np.linalg.inv(X.T @ X) @ X.T @ y
         ##############################
         
         
@@ -132,7 +132,7 @@ class Linear_Regression_Ridge(Linear_Regression):
     def train(self, X, y):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        pass 
+        self.w = np.linalg.inv(X.T @ X + self.alpha * np.eye(X.shape[1])) @ X.T @ y
         ##############################
         
         
