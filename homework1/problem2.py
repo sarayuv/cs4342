@@ -85,7 +85,7 @@ class Simple_Regression_Abs(Simple_Regression):
     def train(self, X, y):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        pass 
+        self.b = np.median(y)
         ##############################
         
         
@@ -117,7 +117,7 @@ class Simple_Regression_SE(Simple_Regression):
     def train(self, X, y):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        pass 
+        self.b = np.mean(y)
         ##############################
         
         
