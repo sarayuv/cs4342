@@ -249,7 +249,13 @@ class Linear_SVM(Linear_Classification,SGD):
     def compute_gradient(self, x, y, l):
         ##############################
         ## INSERT YOUR CODE HERE (20.0 points)
-        
+        fx = self.compute_fx(x)
+        if y * fx >= 1:
+            dL_dw = l * self.w
+            dL_db = 0.0
+        else:
+            dL_dw = l * self.w - y * x
+            dL_db = -y
         ##############################
         return dL_dw, dL_db
         
@@ -280,7 +286,9 @@ class Linear_SVM(Linear_Classification,SGD):
                 yi = y[i] # the label of the i-th random instance
                 ##############################
                 ## INSERT YOUR CODE HERE (20.0 points)
-                pass 
+                dL_dw, dL_db = self.compute_gradient(xi, yi, l)
+                self.update_w(dL_dw)
+                self.update_b(dL_db)
                 ##############################
         
         
