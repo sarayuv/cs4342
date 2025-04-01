@@ -105,7 +105,7 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_z(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        z = x @ self.w + self.b
         ##############################
         return z
         
@@ -129,7 +129,7 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_dz_db(self):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dz_db = np.ones(self.batch_size)
         ##############################
         return dz_db
         
@@ -153,7 +153,7 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_dz_dw(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dz_dw = x
         ##############################
         return dz_dw
         
@@ -177,7 +177,7 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_a(self, z):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        a = 1 / (1 + np.exp(-z))
         ##############################
         return a
         
@@ -201,7 +201,7 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_da_dz(self, a):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        da_dz = a * (1 - a)
         ##############################
         return da_dz
         
@@ -226,7 +226,8 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_L(self, z, y):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        L = np.where(z >= 0, np.log(1 + np.exp(-z)) + z*(1-y), -z*y + np.log(1 + np.exp(z)))
+        L = np.where((z > 500) & (y == 0), z, np.where((z < -500) & (y == 1), -z, L))
         ##############################
         return L
         
@@ -251,7 +252,8 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_dL_dz(self, z, y):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        a = self.compute_a(z)
+        dL_dz = a - y
         ##############################
         return dL_dz
         
@@ -276,7 +278,7 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_dL_db(self, dL_dz, dz_db):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dL_db = dL_dz * dz_db
         ##############################
         return dL_db
         
@@ -302,7 +304,7 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def compute_dL_dw(self, dL_dz, dz_dw):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dL_dw = dL_dz[:, np.newaxis] * dz_dw
         ##############################
         return dL_dw
         
@@ -329,7 +331,11 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
     def backward(self, x, y, z):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        dL_dz = self.compute_dL_dz(z, y)
+        dz_dw = self.compute_dz_dw(x)
+        dz_db = self.compute_dz_db()
+        dL_dw = self.compute_dL_dw(dL_dz, dz_dw)
+        dL_db = self.compute_dL_db(dL_dz, dz_db)
         ##############################
         return dL_dw, dL_db
         
@@ -360,7 +366,10 @@ class Logistic_Regression_Batch(Linear_Classification,Mini_Batch_SGD):
                 yi = ys[i:i+self.batch_size] # the labels of a mini-batch of random samples
                 ##############################
                 ## INSERT YOUR CODE HERE (9.0 points)
-                pass 
+                z = self.compute_z(xi)
+                dL_dw, dL_db = self.backward(xi, yi, z)
+                self.update_w(dL_dw)
+                self.update_b(dL_db)
                 ##############################
         
         
