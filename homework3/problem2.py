@@ -68,7 +68,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_z1(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (0.9 points)
-        
+        z = np.dot(self.W1, x) + self.b1
         ##############################
         return z
         
@@ -92,7 +92,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dz1_db1(self):
         ##############################
         ## INSERT YOUR CODE HERE (0.6 points)
-        
+        dz1_db1 = np.eye(self.h)
         ##############################
         return dz1_db1
         
@@ -117,7 +117,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_db1(self, dL_dz1, dz1_db1):
         ##############################
         ## INSERT YOUR CODE HERE (0.6 points)
-        
+        dL_db1 = np.dot(dL_dz1, dz1_db1)
         ##############################
         return dL_db1
         
@@ -141,7 +141,11 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dz1_dW1(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (0.9 points)
-        
+        dz1_dW1 = np.zeros((self.h, self.h, self.p))
+        for i in range(self.h):
+            for j in range(self.h):
+                if i == j:
+                    dz1_dW1[i, j, :] = x
         ##############################
         return dz1_dW1
         
@@ -166,7 +170,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_dW1(self, dL_dz1, dz1_dW1):
         ##############################
         ## INSERT YOUR CODE HERE (0.9 points)
-        
+        dL_dW1 = np.einsum('i,ijk->jk', dL_dz1, dz1_dW1)
         ##############################
         return dL_dW1
         
@@ -192,7 +196,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_a1(self, z1):
         ##############################
         ## INSERT YOUR CODE HERE (0.6 points)
-        
+        a1 = 1 / (1 + np.exp(-np.clip(z1, -500, 500)))
         ##############################
         return a1
         
@@ -217,7 +221,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_da1_dz1(self, a1):
         ##############################
         ## INSERT YOUR CODE HERE (0.6 points)
-        
+        da1_dz1 = np.diag(a1 * (1 - a1))
         ##############################
         return da1_dz1
         
@@ -263,7 +267,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_dz1(self, dL_da1, da1_dz1):
         ##############################
         ## INSERT YOUR CODE HERE (0.9 points)
-        
+        dL_dz1 = np.dot(dL_da1, da1_dz1)
         ##############################
         return dL_dz1
         
@@ -287,7 +291,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_z2(self, a1):
         ##############################
         ## INSERT YOUR CODE HERE (0.6 points)
-        
+        z2 = np.dot(self.W2, a1) + self.b2
         ##############################
         return z2
         
@@ -310,7 +314,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dz2_db2(self):
         ##############################
         ## INSERT YOUR CODE HERE (0.9 points)
-        
+        dz2_db2 = np.eye(self.c)
         ##############################
         return dz2_db2
         
@@ -335,7 +339,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_db2(self, dL_dz2, dz2_db2):
         ##############################
         ## INSERT YOUR CODE HERE (0.6 points)
-        
+        dL_db2 = np.dot(dL_dz2, dz2_db2)
         ##############################
         return dL_db2
         
@@ -359,7 +363,11 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dz2_dW2(self, a1):
         ##############################
         ## INSERT YOUR CODE HERE (0.9 points)
-        
+        dz2_dW2 = np.zeros((self.c, self.c, self.h))
+        for i in range(self.c):
+            for j in range(self.c):
+                if i == j:
+                    dz2_dW2[i, j, :] = a1
         ##############################
         return dz2_dW2
         
@@ -384,7 +392,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_dW2(self, dL_dz2, dz2_dW2):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dL_dW2 = np.einsum('i,ijk->jk', dL_dz2, dz2_dW2)
         ##############################
         return dL_dW2
         
@@ -409,7 +417,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dz2_da1(self):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dz2_da1 = self.W2
         ##############################
         return dz2_da1
         
@@ -434,7 +442,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_da1(self, dL_dz2, dz2_da1):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dL_da1 = np.dot(dL_dz2, dz2_da1)
         ##############################
         return dL_da1
         
@@ -458,7 +466,8 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_a2(self, z2):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        exp_z2 = np.exp(z2 - np.max(z2))
+        a2 = exp_z2 / np.sum(exp_z2)
         ##############################
         return a2
         
@@ -484,7 +493,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_da2_dz2(self, a2):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        da2_dz2 = np.diag(a2) - np.outer(a2, a2)
         ##############################
         return da2_dz2
         
@@ -509,7 +518,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_dz2(self, dL_da2, da2_dz2):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dL_dz2 = np.dot(dL_da2, da2_dz2)
         ##############################
         return dL_dz2
         
@@ -534,7 +543,7 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_L(self, a2, y):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        L = -np.log(a2[y])
         ##############################
         return L
         
@@ -559,7 +568,8 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_dL_da2(self, a2, y):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        eye = np.eye(len(a2))[y]
+        dL_da2 = -eye / (a2[y] + 1e-15)
         ##############################
         return dL_da2
         
@@ -584,7 +594,10 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        z1 = self.compute_z1(x)
+        a1 = self.compute_a1(z1)
+        z2 = self.compute_z2(a1)
+        a2 = self.compute_a2(z2)
         ##############################
         return a1, a2
         
@@ -613,7 +626,12 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def backward_layer2(self, y, a1, a2):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dL_da2 = self.compute_dL_da2(a2, y)
+        da2_dz2 = self.compute_da2_dz2(a2)
+        dL_dz2 = self.compute_dL_dz2(dL_da2, da2_dz2)
+        dL_dW2 = self.compute_dL_dW2(dL_dz2, self.compute_dz2_dW2(a1))
+        dL_db2 = self.compute_dL_db2(dL_dz2, self.compute_dz2_db2())
+        dL_da1 = self.compute_dL_da1(dL_dz2, self.compute_dz2_da1())
         ##############################
         return dL_dW2, dL_db2, dL_da1
         
@@ -641,7 +659,12 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def backward_layer1(self, x, a1, dL_da1):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        da1_dz1 = self.compute_da1_dz1(a1)
+        dL_dz1 = np.dot(dL_da1, da1_dz1)
+        dz1_dW1 = self.compute_dz1_dW1(x)
+        dz1_db1 = self.compute_dz1_db1()
+        dL_dW1 = np.einsum('i,ijk->jk', dL_dz1, dz1_dW1)
+        dL_db1 = np.dot(dL_dz1, dz1_db1)
         ##############################
         return dL_dW1, dL_db1
         
@@ -671,7 +694,8 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def backward(self, x, y, a1, a2):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        dL_dW2, dL_db2, dL_da1 = self.backward_layer2(y, a1, a2)
+        dL_dW1, dL_db1 = self.backward_layer1(x, a1, dL_da1)
         ##############################
         return dL_dW2, dL_db2, dL_dW1, dL_db1
         
@@ -757,7 +781,12 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
                 y=Y[i] # the label of the i-th random sample
                 ##############################
                 ## INSERT YOUR CODE HERE (1.5 points)
-                pass 
+                a1, a2 = self.forward(x)
+                dL_dW2, dL_db2, dL_dW1, dL_db1 = self.backward(x, y, a1, a2)
+                self.W2 -= self.lr * dL_dW2
+                self.b2 -= self.lr * dL_db2
+                self.W1 -= self.lr * dL_dW1
+                self.b1 -= self.lr * dL_db1
                 ##############################
         
         
@@ -788,7 +817,9 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
             x=Xt[i] # the feature vector of the i-th data sample
             ##############################
             ## INSERT YOUR CODE HERE (1.5 points)
-            
+            _, a2 = self.forward(x)
+            P[i, :] = a2
+            yt[i] = np.argmax(a2)
             ##############################
         return yt, P
         
