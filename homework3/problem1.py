@@ -62,7 +62,7 @@ def Terms_and_Conditions():
     '''
     #*******************************************
     # CHANGE HERE: if you have read and agree with the term above, change "False" to "True".
-    Read_and_Agree = False
+    Read_and_Agree = True
     #*******************************************
     return Read_and_Agree
 #--------------------------
@@ -230,7 +230,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_z(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (4.0 points)
-        
+        z = np.dot(self.W, x) + self.b
         ##############################
         return z
         
@@ -254,7 +254,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_dz_db(self):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        dz_db = np.eye(self.c)
         ##############################
         return dz_db
         
@@ -304,7 +304,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_dL_db(self, dL_dz, dz_db):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        dL_db = np.dot(dL_dz, dz_db)
         ##############################
         return dL_db
         
@@ -328,7 +328,11 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_dz_dW(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (4.0 points)
-        
+        dz_dW = np.zeros((self.c, self.c, self.p))
+        for i in range(self.c):
+            for j in range(self.c):
+                if i == j:
+                    dz_dW[i, j, :] = x
         ##############################
         return dz_dW
         
@@ -379,7 +383,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_dL_dW(self, dL_dz, dz_dW):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        dL_dW = np.tensordot(dL_dz, dz_dW, axes=([0], [0]))
         ##############################
         return dL_dW
         
@@ -405,7 +409,10 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_a(self, z):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        max_z = np.max(z)
+        exp_z = np.exp(z - max_z)
+        a = exp_z / np.sum(exp_z)
+        return a
         ##############################
         return a
         
@@ -429,7 +436,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_da_dz(self, a):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        da_dz = np.diag(a) - np.outer(a, a)
         ##############################
         return da_dz
         
@@ -476,7 +483,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_dL_dz(self, dL_da, da_dz):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        dL_dz = np.dot(dL_da, da_dz)
         ##############################
         return dL_dz
         
@@ -503,7 +510,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_L(self, a, y):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        L = -np.log(a[y]) if a[y] > 0 else 10000000000
         ##############################
         return L
         
@@ -530,7 +537,8 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def compute_dL_da(self, a, y):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        dL_da = np.zeros_like(a)
+        dL_da[y] = -1 / max(a[y], 1e-10)
         ##############################
         return dL_da
         
@@ -574,7 +582,8 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        z = self.compute_z(x)
+        a = self.compute_a(z)
         ##############################
         return a
         
@@ -656,7 +665,13 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def backward(self, x, y, a):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        dL_da = self.compute_dL_da(a, y)
+        da_dz = self.compute_da_dz(a)
+        dL_dz = self.compute_dL_dz(dL_da, da_dz)
+        dz_dW = self.compute_dz_dW(x)
+        dz_db = self.compute_dz_db()
+        dL_dW = self.compute_dL_dW(dL_dz, dz_dW)
+        dL_db = self.compute_dL_db(dL_dz, dz_db)
         ##############################
         return dL_dW, dL_db
         
@@ -678,7 +693,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def update_b(self, dL_db):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        pass 
+        self.b -= self.lr * dL_db
         ##############################
         
         
@@ -700,7 +715,7 @@ class Softmax_Regression(Multiclass_Classification,SGD):
     def update_W(self, dL_dW):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        pass 
+        self.W -= self.lr * dL_dW
         ##############################
         
         
@@ -732,7 +747,10 @@ class Softmax_Regression(Multiclass_Classification,SGD):
                 y=Y[i] # the label of the i-th random sample
                 ##############################
                 ## INSERT YOUR CODE HERE (4.0 points)
-                pass 
+                a = self.forward(x)
+                dL_dW, dL_db = self.backward(x, y, a)
+                self.update_W(dL_dW)
+                self.update_b(dL_db)
                 ##############################
         
         
@@ -763,7 +781,9 @@ class Softmax_Regression(Multiclass_Classification,SGD):
             x=Xt[i] # the feature vector of the i-th data sample
             ##############################
             ## INSERT YOUR CODE HERE (4.0 points)
-            
+            a = self.forward(x)
+            P[i] = a
+            yt[i] = np.argmax(a)
             ##############################
         return yt, P
         
