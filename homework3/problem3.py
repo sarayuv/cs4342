@@ -97,7 +97,9 @@ class Loss_Cross_Entropy(NN_Module):
     def forward(self, x, y):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        self.x = x
+        self.y = y
+        L = -np.log(x[y]) if x[y] > 0 else 10000000000
         ##############################
         return L
         
@@ -124,7 +126,8 @@ class Loss_Cross_Entropy(NN_Module):
     def backward(self, dL_dy=1.0):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        dL_dx = np.zeros_like(self.x)
+        dL_dx[self.y] = -dL_dy / np.clip(self.x[self.y], 1e-10, 1.0)
         ##############################
         return dL_dx
         
@@ -154,7 +157,9 @@ class Softmax(NN_Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        e_x = np.exp(x - np.max(x))
+        y = e_x / np.sum(e_x)
+        self.y = y
         ##############################
         return y
         
@@ -180,7 +185,10 @@ class Softmax(NN_Module):
     def backward(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        dy_times_y = dL_dy * self.y
+        sum_dy_times_y = np.sum(dy_times_y)
+        diff = dL_dy - sum_dy_times_y
+        dL_dx = self.y * diff
         ##############################
         return dL_dx
         
@@ -209,7 +217,8 @@ class ReLU(NN_Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        self.x = x
+        y = np.maximum(0, x)
         ##############################
         return y
         
@@ -234,7 +243,8 @@ class ReLU(NN_Module):
     def backward(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        dL_dx = dL_dy.copy()
+        dL_dx[self.x <= 0] = 0
         ##############################
         return dL_dx
         
@@ -289,7 +299,8 @@ class Linear(NN_Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.4 points)
-        
+        self.x = x
+        z = np.dot(self.W, x) + self.b
         ##############################
         return z
         
@@ -314,7 +325,7 @@ class Linear(NN_Module):
     def compute_dL_dW(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (2.4 points)
-        pass 
+        self.dL_dW = np.outer(dL_dy, self.x) 
         ##############################
         
         
@@ -339,7 +350,7 @@ class Linear(NN_Module):
     def compute_dL_dx(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (2.4 points)
-        
+        dL_dx = np.dot(self.W.T, dL_dy)
         ##############################
         return dL_dx
         
@@ -363,7 +374,9 @@ class Linear(NN_Module):
     def backward(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (2.4 points)
-        
+        self.dL_dW = np.outer(dL_dy, self.x)
+        self.dL_db = dL_dy
+        dL_dx = np.dot(self.W.T, dL_dy)
         ##############################
         return dL_dx
         
@@ -386,7 +399,8 @@ class Linear(NN_Module):
     def update_parameters(self, lr):
         ##############################
         ## INSERT YOUR CODE HERE (2.4 points)
-        pass 
+        self.W -= lr * self.dL_dW
+        self.b -= lr * self.dL_db 
         ##############################
         
         
