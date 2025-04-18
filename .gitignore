@@ -1,0 +1,50 @@
+# Ignore node_modules folder
+node_modules/
+
+# Ignore grading files
+homework1/.vscode/
+homework1/test_1.py
+homework1/test_2.py
+homework1/test_3.py
+homework1/test_4.py
+homework1/pytest.ini
+homework1/requirements.txt
+homework1/grading.py
+
+homework2/.vscode/
+homework2/test_1.py
+homework2/test_2.py
+homework2/test_3.py
+homework2/pytest.ini
+homework2/requirements.txt
+homework2/grading.py
+
+homework3/.vscode/
+homework3/test_1.py
+homework3/test_2.py
+homework3/test_3.py
+homework3/pytest.ini
+homework3/requirements.txt
+homework3/grading.py
+
+homework4/.vscode/
+homework4/test_1.py
+homework4/test_2.py
+homework4/test_3.py
+homework4/pytest.ini
+homework4/requirements.txt
+homework4/grading.py
+
+homework5/.vscode/
+homework5/test_1.py
+homework5/test_2.py
+homework5/test_3.py
+homework5/pytest.ini
+homework5/requirements.txt
+homework5/grading.py
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore log files
+*.log
