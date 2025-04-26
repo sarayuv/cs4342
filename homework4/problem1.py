@@ -61,7 +61,7 @@ def Terms_and_Conditions():
     '''
     #*******************************************
     # CHANGE HERE: if you have read and agree with the term above, change "False" to "True".
-    Read_and_Agree = False
+    Read_and_Agree = True
     #*******************************************
     return Read_and_Agree
 #--------------------------
@@ -138,7 +138,10 @@ class Scalar:
     def square(self):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        y = Scalar(self.data ** 2)
+        y.grad_fn = self.square_grad_fn
+        y.grad_fn_params = [self]
+    
         ##############################
         return y
         
@@ -195,7 +198,10 @@ class Scalar:
     def exp(self):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        y = Scalar(np.exp(self.data))
+        y.grad_fn = self.exp_grad_fn
+        y.grad_fn_params = [self]
+
         ##############################
         return y
         
@@ -220,7 +226,7 @@ class Scalar:
     def exp_grad_fn(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+       
         ##############################
         return dy_dx, dL_dx
         
@@ -247,7 +253,10 @@ class Scalar:
         assert self.data>0 # the input value to the log functin should be positive
         ##############################
         ## INSERT YOUR CODE HERE (2.25 points)
-        
+        y = Scalar(np.log(self.data))
+        y.grad_fn = self.log_grad_fn 
+        y.grad_fn_params = [self]
+
         ##############################
         return y
         
@@ -297,7 +306,10 @@ class Scalar:
     def __add__(self, y):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        z = Scalar(self.data + y.data)
+        z.grad_fn = self.add_grad_fn
+        z.grad_fn_params = [self, y] 
+        # passes 5, fails 1
         ##############################
         return z
         
@@ -326,7 +338,13 @@ class Scalar:
     def add_grad_fn(self, dL_dz, y):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        dz_dx = 1  # Local gradient of z with respect to x (self)
+        dz_dy = 1  # Local gradient of z with respect to y
+        dL_dx = dL_dz * dz_dx  # Global gradient for x
+        dL_dy = dL_dz * dz_dy  # Global gradient for y
+        self.backward(dL_dx)   # Backpropagate gradient for x (self)
+        y.backward(dL_dy)      # Backpropagate gradient for y
+        # passes 4, fails 4
         ##############################
         return dz_dx, dz_dy, dL_dx, dL_dy
         
@@ -350,7 +368,10 @@ class Scalar:
     def __sub__(self, y):
         ##############################
         ## INSERT YOUR CODE HERE (2.25 points)
-        
+        z = Scalar(self.data - y.data)
+        z.grad_fn = self.sub_grad_fn
+        z.grad_fn_params = [self, y]
+        # passes 5, fails 1 
         ##############################
         return z
         
@@ -378,7 +399,13 @@ class Scalar:
     def sub_grad_fn(self, dL_dz, y):
         ##############################
         ## INSERT YOUR CODE HERE (2.25 points)
-        
+        dz_dx = 1
+        dz_dy = -1 
+        dL_dx = dL_dz * dz_dx
+        dL_dy = dL_dz * dz_dy 
+        self.backward(dL_dx)  
+        y.backward(dL_dy) 
+        # passes 4, fails 4
         ##############################
         return dz_dx, dz_dy, dL_dx, dL_dy
         
@@ -402,7 +429,10 @@ class Scalar:
     def __mul__(self, y):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        z = Scalar(self.data * y.data)
+        z.grad_fn = self.mul_grad_fn 
+        z.grad_fn_params = [self, y]
+        # 6 passed, 1 failed
         ##############################
         return z
         
