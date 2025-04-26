@@ -543,7 +543,8 @@ class Fully_Connected_NN(Multiclass_Classification,SGD):
     def compute_L(self, a2, y):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        L = -np.log(a2[y])
+        # L = -np.log(a2[y])
+        L = -np.log(a2[y]) if a2[y] > 0 else 10000000000
         ##############################
         return L
         
