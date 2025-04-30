@@ -460,7 +460,13 @@ class Scalar:
     def mul_grad_fn(self, dL_dz, y):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        dz_dx = y.data
+        dz_dy = self.data
+        dL_dx = dL_dz * dz_dx
+        dL_dy = dL_dz * dz_dy
+        self.backward(dL_dx)
+        y.backward(dL_dy)
+        # 4 failed, 4 passed
         ##############################
         return dz_dx, dz_dy, dL_dx, dL_dy
         
@@ -503,7 +509,8 @@ class SGD_optimizer:
     def zero_grad(self):
         ##############################
         ## INSERT YOUR CODE HERE (2.5 points)
-        pass 
+        for var in self.vars:
+            var.grad = 0.0 
         ##############################
         
         
@@ -524,7 +531,8 @@ class SGD_optimizer:
     def step(self):
         ##############################
         ## INSERT YOUR CODE HERE (2.5 points)
-        pass 
+        for var in self.vars:
+            var.data -= self.lr * var.grad
         ##############################
         
         
