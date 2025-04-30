@@ -51,7 +51,7 @@ class LinearModel:
     def compute_z(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (4.8 points)
-        
+        z = self.w * x + self.b
         ##############################
         return z
         
@@ -77,7 +77,7 @@ class LinearModel:
     def compute_L(self, z, y):
         ##############################
         ## INSERT YOUR CODE HERE (4.8 points)
-        
+        L = (z - y).square()
         ##############################
         return L
         
@@ -105,7 +105,13 @@ class LinearModel:
             for x, y in dataset: # iterate through each data sample (x,y)
                 ##############################
                 ## INSERT YOUR CODE HERE (6.4 points)
-                pass 
+                opt.zero_grad()
+                z = self.compute_z(x) 
+                L = self.compute_L(z, y)
+                L.backward() 
+                opt.step()
+                
+                # 1 failed
                 ##############################
         
         
@@ -137,7 +143,11 @@ class LogisticRegression(LinearModel):
     def compute_L(self, z, y):
         ##############################
         ## INSERT YOUR CODE HERE (4.0 points)
-        
+        c = Scalar(1)
+        if z.data > 100:
+            L = z * (c - y)
+        else:
+            L = (c + z.exp()).log() - z * y
         ##############################
         return L
         
