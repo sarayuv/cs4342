@@ -140,7 +140,7 @@ class Scalar:
         ## INSERT YOUR CODE HERE (4.5 points)
         y = Scalar(self.data ** 2)
         y.grad_fn = self.square_grad_fn
-        y.grad_fn_params = [self]
+        y.grad_fn_params = []
     
         ##############################
         return y
@@ -172,7 +172,12 @@ class Scalar:
     def square_grad_fn(self, dL_dy=1.0):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        dy_dx = 2 * self.data
+        dL_dx = dL_dy * dy_dx 
+        self.grad += dL_dx   
+        if self.grad_fn:       
+            self.grad_fn(dL_dx, *params)
+        # passes 4, fails 3
         ##############################
         return dy_dx, dL_dx
         
@@ -200,7 +205,7 @@ class Scalar:
         ## INSERT YOUR CODE HERE (4.5 points)
         y = Scalar(np.exp(self.data))
         y.grad_fn = self.exp_grad_fn
-        y.grad_fn_params = [self]
+        y.grad_fn_params = []
 
         ##############################
         return y
@@ -255,8 +260,7 @@ class Scalar:
         ## INSERT YOUR CODE HERE (2.25 points)
         y = Scalar(np.log(self.data))
         y.grad_fn = self.log_grad_fn 
-        y.grad_fn_params = [self]
-
+        y.grad_fn_params = []
         ##############################
         return y
         
@@ -308,8 +312,7 @@ class Scalar:
         ## INSERT YOUR CODE HERE (4.5 points)
         z = Scalar(self.data + y.data)
         z.grad_fn = self.add_grad_fn
-        z.grad_fn_params = [self, y] 
-        # passes 5, fails 1
+        z.grad_fn_params = [y] 
         ##############################
         return z
         
@@ -370,8 +373,7 @@ class Scalar:
         ## INSERT YOUR CODE HERE (2.25 points)
         z = Scalar(self.data - y.data)
         z.grad_fn = self.sub_grad_fn
-        z.grad_fn_params = [self, y]
-        # passes 5, fails 1 
+        z.grad_fn_params = [y]
         ##############################
         return z
         
@@ -431,8 +433,7 @@ class Scalar:
         ## INSERT YOUR CODE HERE (4.5 points)
         z = Scalar(self.data * y.data)
         z.grad_fn = self.mul_grad_fn 
-        z.grad_fn_params = [self, y]
-        # 6 passed, 1 failed
+        z.grad_fn_params = [y]
         ##############################
         return z
         
