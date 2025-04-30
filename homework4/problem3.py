@@ -58,7 +58,11 @@ class Vector(Scalar):
     def __matmul__(self, y):
         ##############################
         ## INSERT YOUR CODE HERE (12.0 points)
-        
+        z = Scalar(np.dot(self.data, y.data).item())
+        z.grad_fn = self.matmul_grad_fn
+        z.grad_fn_params = [y]
+
+        # 6 passed, 1 failed
         ##############################
         return z
         
@@ -87,7 +91,18 @@ class Vector(Scalar):
     def matmul_grad_fn(self, dL_dz, y):
         ##############################
         ## INSERT YOUR CODE HERE (12.0 points)
-        
+        dz_dx = y.data
+        dz_dy = self.data
+        dL_dx = dL_dz * dz_dx
+        dL_dy = dL_dz * dz_dy
+        self.grad += dL_dx
+        y.grad += dL_dy
+        if self.grad_fn:
+            self.grad_fn(self.grad, *self.grad_fn_params)
+        if y.grad_fn:
+            y.grad_fn(y.grad, *y.grad_fn_params)
+
+        # 5 passed, 2 failed
         ##############################
         return dz_dx, dz_dy, dL_dx, dL_dy
         
