@@ -58,7 +58,7 @@ class RecurrentLayer(nn.Module):
     def compute_zt(self, xt, ht_1):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        zt = xt @ self.U + ht_1 @ self.V + self.b
         ##############################
         return zt
         
@@ -82,7 +82,7 @@ class RecurrentLayer(nn.Module):
     def compute_ht(self, zt):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        ht = th.tanh(zt)
         ##############################
         return ht
         
@@ -107,7 +107,8 @@ class RecurrentLayer(nn.Module):
     def forward(self, xt, ht_1):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        zt = self.compute_zt(xt, ht_1)
+        ht = self.compute_ht(zt)
         ##############################
         return ht
         
@@ -164,7 +165,7 @@ class RNN(nn.Module):
     def compute_z(self, ht):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        z = ht @ self.W + self.b
         ##############################
         return z
         
@@ -191,7 +192,11 @@ class RNN(nn.Module):
     def forward(self, x, ht):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
+        for t in range(x.size(1)):
+            xt = x.select(1, t)
+            ht = self.rnn(xt, ht)
         
+        z = self.compute_z(ht)
         ##############################
         return z
         
@@ -218,7 +223,7 @@ class RNN(nn.Module):
     def compute_L(self, z, y):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        
+        L = self.loss_fn(z, y)
         ##############################
         return L
         
@@ -240,7 +245,8 @@ class RNN(nn.Module):
     def update_parameters(self):
         ##############################
         ## INSERT YOUR CODE HERE (1.5 points)
-        pass 
+        self.optimizer.step()
+        self.optimizer.zero_grad()
         ##############################
         
         
@@ -270,7 +276,10 @@ class RNN(nn.Module):
                 ht= th.zeros(y.size()[0],self.rnn.h) # initialize hidden memory
                 ##############################
                 ## INSERT YOUR CODE HERE (3.0 points)
-                pass 
+                z = self.forward(x, ht)
+                L = self.compute_L(z, y)
+                L.backward()
+                self.update_parameters()
                 ##############################
         
         
