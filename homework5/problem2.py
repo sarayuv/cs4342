@@ -61,7 +61,14 @@ class Conv2d_v1(nn.Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
+        h, w = x.size()
+        s = self.s
+        z = th.zeros(h-s+1, w-s+1)
         
+        for i in range(h-s+1):
+            for j in range(w-s+1):
+                z[i, j] = (x[i:i+s, j:j+s] * self.W).sum() + self.b
+
         ##############################
         return z
         
@@ -113,7 +120,13 @@ class Conv2d_v2(nn.Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
+        _, h, w = x.size()
+        s = self.s
+        z = th.zeros(h-s+1, w-s+1)
         
+        for i in range(h-s+1):
+            for j in range(w-s+1):
+                z[i, j] = (x[:, i:i+s, j:j+s] * self.W).sum() + self.b
         ##############################
         return z
         
@@ -167,7 +180,14 @@ class Conv2d_v3(nn.Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
+        _, h, w = x.size()
+        s = self.s      
+        z = th.zeros(self.c_out, h-s+1, w-s+1)
         
+        for i in range(self.c_out):
+            for j in range(h-s+1):
+                for k in range(w-s+1):
+                    z[i, j, k] = (x[:, j:j+s, k:k+s] * self.W[i]).sum() + self.b[i]
         ##############################
         return z
         
@@ -203,7 +223,7 @@ class Conv2d(Conv2d_v3):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        z = th.nn.functional.conv2d(x, self.W, self.b, stride=1, padding=0)
         ##############################
         return z
         
@@ -233,7 +253,7 @@ class ReLU(nn.Module):
     def forward(self, z):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        a = th.nn.functional.relu(z)
         ##############################
         return a
         
@@ -263,7 +283,7 @@ class MaxPooling(nn.Module):
     def forward(self, a):
         ##############################
         ## INSERT YOUR CODE HERE (2.0 points)
-        
+        p = th.nn.functional.max_pool2d(a, kernel_size=2, stride=2)
         ##############################
         return p
         
@@ -337,7 +357,7 @@ class CNN(nn.Module):
     def compute_z1(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.8 points)
-        
+        z1 = self.conv1(x)
         ##############################
         return z1
         
@@ -362,7 +382,7 @@ class CNN(nn.Module):
     def compute_a1(self, z1):
         ##############################
         ## INSERT YOUR CODE HERE (2.8 points)
-        
+        a1 = self.relu(z1)
         ##############################
         return a1
         
@@ -387,7 +407,7 @@ class CNN(nn.Module):
     def compute_p1(self, a1):
         ##############################
         ## INSERT YOUR CODE HERE (2.8 points)
-        
+        p1 = self.pool(a1)
         ##############################
         return p1
         
@@ -412,7 +432,7 @@ class CNN(nn.Module):
     def compute_z2(self, p1):
         ##############################
         ## INSERT YOUR CODE HERE (1.4 points)
-        
+        z2 = self.conv2(p1)
         ##############################
         return z2
         
@@ -437,7 +457,7 @@ class CNN(nn.Module):
     def compute_a2(self, z2):
         ##############################
         ## INSERT YOUR CODE HERE (1.4 points)
-        
+        a2 = self.relu(z2)
         ##############################
         return a2
         
@@ -461,7 +481,7 @@ class CNN(nn.Module):
     def compute_p2(self, a2):
         ##############################
         ## INSERT YOUR CODE HERE (1.4 points)
-        
+        p2 = self.pool(a2)
         ##############################
         return p2
         
@@ -486,7 +506,7 @@ class CNN(nn.Module):
     def flatten(self, p2):
         ##############################
         ## INSERT YOUR CODE HERE (2.8 points)
-        
+        f = p2.view(p2.size(0), -1)
         ##############################
         return f
         
@@ -511,7 +531,7 @@ class CNN(nn.Module):
     def compute_z3(self, f):
         ##############################
         ## INSERT YOUR CODE HERE (1.4 points)
-        
+        z3 = f @ self.W3 + self.b3
         ##############################
         return z3
         
@@ -536,7 +556,14 @@ class CNN(nn.Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (2.8 points)
-        
+        z1 = self.compute_z1(x)
+        a1 = self.compute_a1(z1)
+        p1 = self.compute_p1(a1)
+        z2 = self.compute_z2(p1)
+        a2 = self.compute_a2(z2)
+        p2 = self.compute_p2(a2)
+        f = self.flatten(p2)
+        z3 = self.compute_z3(f)
         ##############################
         return z3
         
@@ -563,7 +590,7 @@ class CNN(nn.Module):
     def compute_L(self, z3, y):
         ##############################
         ## INSERT YOUR CODE HERE (2.8 points)
-        
+        L = self.loss_fn(z3, y)
         ##############################
         return L
         
@@ -585,7 +612,8 @@ class CNN(nn.Module):
     def update_parameters(self):
         ##############################
         ## INSERT YOUR CODE HERE (2.8 points)
-        pass 
+        self.optimizer.step()
+        self.optimizer.zero_grad()
         ##############################
         
         
@@ -614,7 +642,14 @@ class CNN(nn.Module):
                 y=mini_batch[1] # the labels of the samples in a mini-batch
                 ##############################
                 ## INSERT YOUR CODE HERE (2.8 points)
-                pass 
+                for _ in range(self.n_epoch):
+                    for mini_batch in data_loader:
+                        x=mini_batch[0]
+                        y=mini_batch[1]
+                        z3 = self.forward(x)
+                        L = self.compute_L(z3, y)
+                        L.backward()
+                        self.update_parameters()
                 ##############################
         
         
