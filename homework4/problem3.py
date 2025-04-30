@@ -97,10 +97,8 @@ class Vector(Scalar):
         dL_dy = dL_dz * dz_dy
         self.grad += dL_dx
         y.grad += dL_dy
-        if self.grad_fn:
-            self.grad_fn(dL_dx, *self.grad_fn_params)
-        if y.grad_fn:
-            y.grad_fn(dL_dy, *y.grad_fn_params)
+        self.backward(dL_dx)
+        y.backward(dL_dy)
 
         # 5 passed, 2 failed
         ##############################
@@ -148,7 +146,7 @@ class LinearModel(LinearModel1D):
     def compute_z(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        z = self.w @ x + self.b
         ##############################
         return z
         
