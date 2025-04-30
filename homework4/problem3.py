@@ -98,9 +98,9 @@ class Vector(Scalar):
         self.grad += dL_dx
         y.grad += dL_dy
         if self.grad_fn:
-            self.grad_fn(self.grad, *self.grad_fn_params)
+            self.grad_fn(dL_dx, *self.grad_fn_params)
         if y.grad_fn:
-            y.grad_fn(y.grad, *y.grad_fn_params)
+            y.grad_fn(dL_dy, *y.grad_fn_params)
 
         # 5 passed, 2 failed
         ##############################
