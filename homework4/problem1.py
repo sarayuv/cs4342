@@ -141,7 +141,6 @@ class Scalar:
         y = Scalar(self.data ** 2)
         y.grad_fn = self.square_grad_fn
         y.grad_fn_params = []
-    
         ##############################
         return y
         
@@ -176,8 +175,7 @@ class Scalar:
         dL_dx = dL_dy * dy_dx 
         self.grad += dL_dx   
         if self.grad_fn:       
-            self.grad_fn(dL_dx, *params)
-        # passes 4, fails 3
+            self.grad_fn(dL_dx, *self.grad_fn_params)
         ##############################
         return dy_dx, dL_dx
         
@@ -231,7 +229,11 @@ class Scalar:
     def exp_grad_fn(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-       
+        dy_dx = np.exp(self.data)
+        dL_dx = dL_dy * dy_dx
+        self.grad += dL_dx
+        if self.grad_fn:
+            self.grad_fn(dL_dx, *self.grad_fn_params)
         ##############################
         return dy_dx, dL_dx
         
@@ -285,7 +287,13 @@ class Scalar:
     def log_grad_fn(self, dL_dy):
         ##############################
         ## INSERT YOUR CODE HERE (2.25 points)
-        
+        dy_dx = 1 / self.data
+        dL_dx = dL_dy * dy_dx
+        self.grad += dL_dx
+        if self.grad_fn:
+            self.grad_fn(dL_dx, *self.grad_fn_params)
+
+        # 7 passed, 1 failed
         ##############################
         return dy_dx, dL_dx
         
@@ -341,13 +349,16 @@ class Scalar:
     def add_grad_fn(self, dL_dz, y):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        dz_dx = 1  # Local gradient of z with respect to x (self)
-        dz_dy = 1  # Local gradient of z with respect to y
-        dL_dx = dL_dz * dz_dx  # Global gradient for x
-        dL_dy = dL_dz * dz_dy  # Global gradient for y
-        self.backward(dL_dx)   # Backpropagate gradient for x (self)
-        y.backward(dL_dy)      # Backpropagate gradient for y
-        # passes 4, fails 4
+        dz_dx = 1  
+        dz_dy = 1 
+        dL_dx = dL_dz * dz_dx 
+        dL_dy = dL_dz * dz_dy 
+        self.grad += dL_dx
+        y.grad += dL_dy 
+        if self.grad_fn: 
+            self.grad_fn(dL_dx, *self.grad_fn_params)
+        if y.grad_fn:
+            y.grad_fn(dL_dy, *y.grad_fn_params)
         ##############################
         return dz_dx, dz_dy, dL_dx, dL_dy
         
@@ -407,7 +418,6 @@ class Scalar:
         dL_dy = dL_dz * dz_dy 
         self.backward(dL_dx)  
         y.backward(dL_dy) 
-        # passes 4, fails 4
         ##############################
         return dz_dx, dz_dy, dL_dx, dL_dy
         
@@ -467,7 +477,6 @@ class Scalar:
         dL_dy = dL_dz * dz_dy
         self.backward(dL_dx)
         y.backward(dL_dy)
-        # 4 failed, 4 passed
         ##############################
         return dz_dx, dz_dy, dL_dx, dL_dy
         
