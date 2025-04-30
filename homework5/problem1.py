@@ -62,7 +62,7 @@ def Terms_and_Conditions():
     '''
     #*******************************************
     # CHANGE HERE: if you have read and agree with the term above, change "False" to "True".
-    Read_and_Agree = False
+    Read_and_Agree = True
     #*******************************************
     return Read_and_Agree
 #--------------------------
@@ -120,7 +120,7 @@ class SoftmaxRegression(nn.Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        z = x @ self.W + self.b
         ##############################
         return z
         
@@ -147,7 +147,7 @@ class SoftmaxRegression(nn.Module):
     def compute_L(self, z, y):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        L = self.loss_fn(z, y)
         ##############################
         return L
         
@@ -173,7 +173,8 @@ class SoftmaxRegression(nn.Module):
     def update_parameters(self):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        pass 
+        self.optimizer.step()
+        self.optimizer.zero_grad()
         ##############################
         
         
@@ -202,7 +203,10 @@ class SoftmaxRegression(nn.Module):
                 y=mini_batch[1] # the labels of the samples in a mini-batch
                 ##############################
                 ## INSERT YOUR CODE HERE (6.0 points)
-                pass 
+                z = self.forward(x)
+                loss = self.compute_L(z, y)
+                loss.backward()
+                self.update_parameters()
                 ##############################
         
         
@@ -228,7 +232,8 @@ class SoftmaxRegression(nn.Module):
     def predict(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        z = self.forward(x)
+        y_predict = th.argmax(z, dim=1)
         ##############################
         return y_predict
         
