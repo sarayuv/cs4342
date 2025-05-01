@@ -38,7 +38,7 @@ class QK_DotProduct(nn.Module):
     def forward(self, q, k):
         ##############################
         ## INSERT YOUR CODE HERE (8.0 points)
-        
+        p = q @ k.transpose(1, 2)
         ##############################
         return p
         
@@ -68,7 +68,7 @@ class QK_ScaleDotProduct(nn.Module):
     def forward(self, p, d_k):
         ##############################
         ## INSERT YOUR CODE HERE (4.0 points)
-        
+        s = p /math.sqrt(d_k)
         ##############################
         return s
         
@@ -97,7 +97,7 @@ class QK_SoftMax(nn.Module):
     def forward(self, s):
         ##############################
         ## INSERT YOUR CODE HERE (4.0 points)
-        
+        a = F.softmax(s, dim=-1)
         ##############################
         return a
         
@@ -127,7 +127,7 @@ class QKV_Attention(nn.Module):
     def forward(self, a, v):
         ##############################
         ## INSERT YOUR CODE HERE (8.0 points)
-        
+        z = a @ v
         ##############################
         return z
         
@@ -178,7 +178,9 @@ class AttentionHead(nn.Module):
     def compute_qkv(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (8.0 points)
-        
+        q = x @ self.Wq
+        k = x @ self.Wk
+        v = x @ self.Wv
         ##############################
         return q, k, v
         
@@ -202,7 +204,12 @@ class AttentionHead(nn.Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (8.0 points)
-        
+        q, k, v = self.compute_qkv(x)
+        p = self.layer1(q, k)
+        d_k = k.size(-1)
+        s = self.layer2(p, d_k)
+        a = self.layer3(s)
+        z = self.layer4(a, v)
         ##############################
         return z
         
