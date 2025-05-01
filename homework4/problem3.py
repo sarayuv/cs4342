@@ -58,6 +58,7 @@ class Vector(Scalar):
     def __matmul__(self, y):
         ##############################
         ## INSERT YOUR CODE HERE (12.0 points)
+        assert type (y) == Vector
         z = Scalar(np.dot(self.data, y.data).item())
         z.grad_fn = self.matmul_grad_fn
         z.grad_fn_params = [y]
@@ -91,12 +92,11 @@ class Vector(Scalar):
     def matmul_grad_fn(self, dL_dz, y):
         ##############################
         ## INSERT YOUR CODE HERE (12.0 points)
+        assert type (y) == Vector
         dz_dx = y.data
         dz_dy = self.data
         dL_dx = dL_dz * dz_dx
         dL_dy = dL_dz * dz_dy
-        self.grad += dL_dx
-        y.grad += dL_dy
         self.backward(dL_dx)
         y.backward(dL_dy)
 

@@ -105,13 +105,11 @@ class LinearModel:
             for x, y in dataset: # iterate through each data sample (x,y)
                 ##############################
                 ## INSERT YOUR CODE HERE (6.4 points)
-                opt.zero_grad()
                 z = self.compute_z(x) 
                 L = self.compute_L(z, y)
                 L.backward() 
                 opt.step()
-                
-                # 1 failed
+                opt.zero_grad()                
                 ##############################
         
         
