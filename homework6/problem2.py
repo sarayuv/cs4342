@@ -58,7 +58,7 @@ class Encoder(nn.Module):
     def compute_embedding(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        embeddings = self.embedding(x)
         ##############################
         return embeddings
         
@@ -84,7 +84,8 @@ class Encoder(nn.Module):
         h0= th.randn(self.num_layers, x.size()[1], self.h) # create initial hidden states of the RNN model (with multiple layers)
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        h0 = th.randn(self.num_layers, x.size()[1], self.h)
+        outputs, hidden = self.rnn(x,h0)
         ##############################
         return outputs, hidden
         
@@ -109,7 +110,8 @@ class Encoder(nn.Module):
     def forward(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        embeddings = self.compute_embedding(x)
+        outputs, hidden = self.process_sequence(embeddings)
         ##############################
         return outputs, hidden
         
@@ -162,7 +164,7 @@ class Decoder(nn.Module):
     def compute_embedding(self, x):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        embeddings = self.embedding(x)
         ##############################
         return embeddings
         
@@ -189,7 +191,10 @@ class Decoder(nn.Module):
     def compute_outputs(self, x, hidden):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
-        
+        output, hidden = self.rnn(x, hidden)
+        outputs = self.out(output.squeeze(0))
+
+        # fails test
         ##############################
         return outputs, hidden
         
@@ -216,7 +221,11 @@ class Decoder(nn.Module):
     def forward(self, x, hidden):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        embeddings = self.compute_embedding(x)
+        embeddings = embeddings.permute(1,0,2)
+        outputs, hidden = self.compute_outputs(embeddings, hidden)
+
+        # fails test
         ##############################
         return outputs, hidden
         
