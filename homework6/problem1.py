@@ -62,7 +62,7 @@ def Terms_and_Conditions():
     '''
     #*******************************************
     # CHANGE HERE: if you have read and agree with the term above, change "False" to "True".
-    Read_and_Agree = False
+    Read_and_Agree = True
     #*******************************************
     return Read_and_Agree
 #--------------------------
@@ -115,7 +115,7 @@ class Attention_Gate(nn.Module):
     def compute_xh(self, xt, ht_1):
         ##############################
         ## INSERT YOUR CODE HERE (1.8 points)
-        
+        xh = th.cat((xt, ht_1), dim=1)
         ##############################
         return xh
         
@@ -140,7 +140,7 @@ class Attention_Gate(nn.Module):
     def compute_z(self, xh):
         ##############################
         ## INSERT YOUR CODE HERE (1.8 points)
-        
+        z = xh @ self.W + self.b
         ##############################
         return z
         
@@ -164,7 +164,7 @@ class Attention_Gate(nn.Module):
     def compute_a(self, z):
         ##############################
         ## INSERT YOUR CODE HERE (1.8 points)
-        
+        a = th.sigmoid(z)
         ##############################
         return a
         
@@ -189,7 +189,9 @@ class Attention_Gate(nn.Module):
     def forward(self, xt, ht_1):
         ##############################
         ## INSERT YOUR CODE HERE (3.6 points)
-        
+        xh = self.compute_xh(xt, ht_1)
+        z = self.compute_z(xh)
+        a = self.compute_a(z)
         ##############################
         return a
         
@@ -218,7 +220,7 @@ class Candidate_Change(Attention_Gate):
     def compute_a(self, z):
         ##############################
         ## INSERT YOUR CODE HERE (3.0 points)
-        
+        a = th.tanh(z)
         ##############################
         return a
         
@@ -272,7 +274,7 @@ class LSTM_Layer(nn.Module):
     def compute_Ct(self, f_t, i_t, C_c, Ct_1):
         ##############################
         ## INSERT YOUR CODE HERE (1.8 points)
-        
+        Ct = f_t * Ct_1 + i_t * C_c
         ##############################
         return Ct
         
@@ -297,7 +299,7 @@ class LSTM_Layer(nn.Module):
     def compute_ht(self, Ct, o_t):
         ##############################
         ## INSERT YOUR CODE HERE (1.8 points)
-        
+        ht = o_t * th.tanh(Ct)
         ##############################
         return ht
         
@@ -325,7 +327,12 @@ class LSTM_Layer(nn.Module):
     def forward(self, xt, Ct_1, ht_1):
         ##############################
         ## INSERT YOUR CODE HERE (2.4 points)
-        
+        f_t = self.forget_gate(xt, ht_1)
+        i_t = self.input_gate(xt, ht_1)
+        o_t = self.output_gate(xt, ht_1)
+        C_c = self.candidate_change(xt, ht_1)
+        Ct = self.compute_Ct(f_t, i_t, C_c, Ct_1)
+        ht = self.compute_ht(Ct, o_t)
         ##############################
         return Ct, ht
         
@@ -371,7 +378,7 @@ class Linear_Layer(nn.Module):
     def forward(self, ht):
         ##############################
         ## INSERT YOUR CODE HERE (6.0 points)
-        
+        z = ht @ self.W + self.b
         ##############################
         return z
         
@@ -431,7 +438,10 @@ class LSTM(nn.Module):
     def forward(self, x, Ct, ht):
         ##############################
         ## INSERT YOUR CODE HERE (2.4 points)
-        
+        for t in range(x.shape[1]):
+            xt = x.select(1, t)
+            Ct, ht = self.lstm(xt, Ct, ht)
+        z = self.linear(ht)
         ##############################
         return z
         
@@ -458,7 +468,7 @@ class LSTM(nn.Module):
     def compute_L(self, z, y):
         ##############################
         ## INSERT YOUR CODE HERE (1.2 points)
-        
+        L = self.loss_fn(z, y)
         ##############################
         return L
         
@@ -480,7 +490,8 @@ class LSTM(nn.Module):
     def update_parameters(self):
         ##############################
         ## INSERT YOUR CODE HERE (1.2 points)
-        pass 
+        self.optimizer.step()
+        self.optimizer.zero_grad()
         ##############################
         
         
@@ -511,7 +522,10 @@ class LSTM(nn.Module):
                 ht= th.zeros(y.size()[0],self.lstm.h) # initialize hidden memory
                 ##############################
                 ## INSERT YOUR CODE HERE (1.2 points)
-                pass 
+                z = self.forward(x, Ct, ht)
+                L = self.compute_L(z, y)
+                L.backward()
+                self.update_parameters()
                 ##############################
         
         
