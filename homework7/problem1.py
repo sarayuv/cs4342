@@ -61,7 +61,7 @@ def Terms_and_Conditions():
     '''
     #*******************************************
     # CHANGE HERE: if you have read and agree with the term above, change "False" to "True".
-    Read_and_Agree = False
+    Read_and_Agree = True
     #*******************************************
     return Read_and_Agree
 #--------------------------
@@ -120,7 +120,7 @@ class QLearning:
     def random_policy(self):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        
+        a = np.random.randint(0, self.c)
         ##############################
         return a
         
@@ -145,7 +145,7 @@ class QLearning:
     def greedy_policy(self, s):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        
+        a = np.argmax(self.Q[s,:])
         ##############################
         return a
         
@@ -170,7 +170,7 @@ class QLearning:
     def choose_action(self, s):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        
+        a = self.random_policy() if np.random.rand() < self.e else self.greedy_policy(s)
         ##############################
         return a
         
@@ -195,7 +195,7 @@ class QLearning:
     def running_average(self, C, v_sample):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        
+        C_new = (1 - self.lr) * C + self.lr * v_sample
         ##############################
         return C_new
         
@@ -223,7 +223,8 @@ class QLearning:
     def update_memory(self, s, a, s_new, r, done=False):
         ##############################
         ## INSERT YOUR CODE HERE (15.0 points)
-        pass 
+        target = r if done else r + self.gamma * np.max(self.Q[s_new,:])
+        self.Q[s,a] = self.running_average(self.Q[s,a], target)
         ##############################
         
         
