@@ -76,7 +76,7 @@ class Qnet:
     def compute_Q(self, S):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        
+        Q = S @ self.W + self.b
         ##############################
         return Q
         
@@ -110,7 +110,8 @@ class Qnet:
     def compute_Qt(self, S_new, R, T):
         ##############################
         ## INSERT YOUR CODE HERE (10.0 points)
-        
+        Q_next = self.compute_Q(S_new).detach()
+        Qt = R + (~T).float() * self.gamma * th.max(Q_next, dim=1)[0]
         ##############################
         return Qt
         
@@ -139,7 +140,9 @@ class Qnet:
     def compute_L(self, Q, A, Qt):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        
+        indices = th.arange(Q.shape[0])
+        Q_selected = Q[indices, A]
+        L = self.loss_fn(Q_selected, Qt)
         ##############################
         return L
         
@@ -161,7 +164,8 @@ class Qnet:
     def update_parameters(self):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        pass 
+        self.optimizer.step()
+        self.optimizer.zero_grad()
         ##############################
         
         
@@ -188,7 +192,10 @@ class Qnet:
     def update_Q(self, S, A, Qt):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        pass 
+        Q = self.compute_Q(S)
+        L = self.compute_L(Q, A, Qt)
+        L.backward()
+        self.update_parameters()
         ##############################
         
         
@@ -215,7 +222,7 @@ class Qnet:
     def predict_q(self, s):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        
+        q = self.compute_Q(s.unsqueeze(0)).squeeze(0)
         ##############################
         return q
         
@@ -240,7 +247,7 @@ class Qnet:
     def greedy_policy(self, q):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        
+        a = th.argmax(q).item()
         ##############################
         return a
         
@@ -265,7 +272,7 @@ class Qnet:
     def egreedy_policy(self, q):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        
+        a = np.random.choice(self.c) if np.random.rand() < self.e else th.argmax(q).item()
         ##############################
         return a
         
@@ -291,7 +298,8 @@ class Qnet:
     def sample_action(self, s):
         ##############################
         ## INSERT YOUR CODE HERE (5.0 points)
-        
+        q = self.predict_q(s)
+        a = self.egreedy_policy(q)
         ##############################
         return a
         
