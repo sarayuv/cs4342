@@ -192,9 +192,7 @@ class Decoder(nn.Module):
         ##############################
         ## INSERT YOUR CODE HERE (4.5 points)
         output, hidden = self.rnn(x, hidden)
-        outputs = self.out(output.squeeze(0))
-
-        # fails test
+        outputs = self.out(output)
         ##############################
         return outputs, hidden
         
@@ -224,8 +222,6 @@ class Decoder(nn.Module):
         embeddings = self.compute_embedding(x)
         embeddings = embeddings.permute(1,0,2)
         outputs, hidden = self.compute_outputs(embeddings, hidden)
-
-        # fails test
         ##############################
         return outputs, hidden
         
